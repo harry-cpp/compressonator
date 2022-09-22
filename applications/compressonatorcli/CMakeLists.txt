@@ -143,7 +143,7 @@ if (UNIX)
         list(APPEND CMP_LIBS Threads::Threads
                              ${OpenEXR_LIBRARIES})
     else()
-        list(APPEND CMP_LIBS "/usr/lib/libz.dylib")
+        list(APPEND CMP_LIBS "/usr/local/lib/libzip.dylib")
         list(APPEND CMP_LIBS "/usr/local/lib/libHalf.dylib")
         list(APPEND CMP_LIBS "/usr/local/lib/libImath.dylib")
         list(APPEND CMP_LIBS "/usr/local/lib/libIlmThread.dylib")

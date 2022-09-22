@@ -11,17 +11,10 @@
 import os
 import subprocess
 import sys
-import urllib
+import urllib.request
 import zipfile
 import tarfile
 import platform
-
-isPython3OrAbove = None
-if sys.version_info[0] >= 3:
-    isPython3OrAbove = True
-
-if isPython3OrAbove:
-    import urllib.request
 
 # to allow the script to be run from anywhere - not just the cwd - store the absolute path to the script file
 scriptRoot = os.path.dirname(os.path.realpath(__file__))
@@ -203,10 +196,13 @@ def downloadandunzip(key, value):
     zipPath = os.path.join(targetPath, zipfileName)
     if False == os.path.isfile(zipPath):
         print("\nDownloading " + key + " into " + zipPath)
-        if isPython3OrAbove:
-            urllib.request.urlretrieve(key, zipPath)
-        else:
-            urllib.urlretrieve(key, zipPath)
+
+        opener = urllib.request.build_opener()
+        opener.addheaders = [('User-Agent', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.47 Safari/537.36')]
+        with opener.open(key) as url_file:
+            with open(zipPath, 'wb') as f:
+                f.write(url_file.read())
+
         if os.path.splitext(zipPath)[1] == ".zip":
             zipfile.ZipFile(zipPath).extractall(targetPath)
             os.remove(zipPath)

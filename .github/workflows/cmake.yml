@@ -8,11 +8,11 @@ env:
 
 jobs:
   build:
-    # The CMake configure and build commands are platform agnostic and should work equally
-    # well on Windows or Mac.  You can convert this to a matrix build if you need
-    # cross-platform coverage.
-    # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
-    runs-on: windows-latest
+    name: build-${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ windows-latest, macos-latest, ubuntu-20.04 ]
 
     steps:
     - uses: actions/checkout@v2
@@ -24,7 +24,17 @@ jobs:
       
     - name: Sync external libs
       working-directory: ${{github.workspace}}/scripts
-      run: python fetch_dependencies.py
+      run: python3 fetch_dependencies.py
+
+    - name: Setup Ubuntu
+      if: runner.os == 'Linux'
+      working-directory: ${{github.workspace}}/scripts
+      run: bash initsetup_ubuntu.sh
+
+    - name: Setup macOS
+      if: runner.os == 'macOS'
+      working-directory: ${{github.workspace}}/scripts
+      run: bash initsetup_mac.sh
   
     - name: Configure CMake
       # Use a bash shell so we can use the same syntax for environment variable
@@ -45,8 +55,8 @@ jobs:
     - name: Upload Build Artifacts
       uses: actions/upload-artifact@v2
       with: 
-          name: compressonatlrCLI_64_Windows_Master_Build
-          path: ${{github.workspace}}/build/bin/Release
+          name: compressonatlrCLI_${{ matrix.os }}
+          path: ${{github.workspace}}/build/bin/
 
 
 
