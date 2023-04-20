@@ -8,7 +8,11 @@ env:
 
 jobs:
   build_compressonator_cli:
-    runs-on: windows-latest
+    name: build-${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ windows-latest, macos-latest, ubuntu-22.04 ]
 
     steps:
     - uses: actions/checkout@v3
@@ -20,7 +24,17 @@ jobs:
       
     - name: Sync external libs
       working-directory: ${{github.workspace}}/scripts
-      run: python fetch_dependencies.py
+      run: python3 fetch_dependencies.py
+
+    - name: Setup Ubuntu
+      if: runner.os == 'Linux'
+      working-directory: ${{github.workspace}}/scripts
+      run: bash initsetup_ubuntu.sh
+
+    - name: Setup macOS
+      if: runner.os == 'macOS'
+      working-directory: ${{github.workspace}}/scripts
+      run: bash initsetup_mac.sh
   
     - name: Configure CMake
       # Use a bash shell so we can use the same syntax for environment variable
@@ -41,8 +55,8 @@ jobs:
     - name: Upload Build Artifacts
       uses: actions/upload-artifact@v3
       with: 
-          name: CompressonatorCLI_64_Windows_Master_Build
-          path: ${{github.workspace}}/build/bin/Release
+          name: CompressonatorCLI_${{ matrix.os }}
+          path: ${{github.workspace}}/build/bin/
   
   build_compressonator_framework:
     runs-on: windows-latest
